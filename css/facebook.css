@@ -1,0 +1,16 @@
+#facebook-login a{
+text-decoration: none;
+font-size: 11px;
+line-height: 14px;
+background: #29447E url("../images/fball_sprite.png") no-repeat scroll left -270px !important;
+cursor: pointer;
+display: inline-block;
+outline: medium none;
+padding:11.5px;
+}
+#facebook-login span{
+	padding-left: 40px;
+	color: #fff;
+	font-size: 14px;
+	font-weight:bold;
+}

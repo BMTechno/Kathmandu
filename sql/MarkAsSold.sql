@@ -1,0 +1,4 @@
+CREATE TABLE /*TABLE_PREFIX*/t_nc_mark_as_sold (
+    pk_sold_id INT UNSIGNED NOT NULL,    
+    PRIMARY KEY (pk_sold_id)
+) ENGINE=InnoDB DEFAULT CHARACTER SET 'UTF8' COLLATE 'UTF8_GENERAL_CI';

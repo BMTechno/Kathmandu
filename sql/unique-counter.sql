@@ -1,0 +1,6 @@
+CREATE TABLE /*TABLE_PREFIX*/t_nc_unique_counter (
+  pk_i_id INT(10) UNSIGNED NOT NULL,	
+  ip VARCHAR(15) NOT NULL,
+  time_stamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+  PRIMARY KEY (pk_i_id,ip)
+);

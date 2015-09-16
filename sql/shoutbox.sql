@@ -1,0 +1,7 @@
+CREATE TABLE /*TABLE_PREFIX*/t_nc_shoutbox (
+	pk_sb_message_id INT(10) NOT NULL AUTO_INCREMENT,
+    sb_message VARCHAR(100) NOT NULL,
+    sb_username VARCHAR(100) NOT NULL,
+    sb_time DATETIME NOT NULL,
+    PRIMARY KEY(pk_sb_message_id)
+) ENGINE=InnoDB DEFAULT CHARACTER SET 'UTF8' COLLATE 'UTF8_GENERAL_CI';

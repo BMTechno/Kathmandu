@@ -1,0 +1,4 @@
+CREATE TABLE /*TABLE_PREFIX*/t_nc_paid_ads (
+    pk_paid_ads_id INT UNSIGNED NOT NULL,    
+    PRIMARY KEY (pk_paid_ads_id)
+) ENGINE=InnoDB DEFAULT CHARACTER SET 'UTF8' COLLATE 'UTF8_GENERAL_CI';
