@@ -59,6 +59,9 @@ a:hover {
   color: #37302a;
   font-size: 12px;
   line-height: 21px;
+  height: 3.5em!important;
+  opacity: 1!important;
+  overflow: hidden!important;
 }
 .image-height {
   height: 200px;
@@ -253,7 +256,7 @@ a:hover {
   padding-bottom: 10px;
 }
 .head_new_cl {
-  top:21px;
+  top:36px;
 }
 .login h4 {
   text-transform: uppercase;
@@ -680,7 +683,7 @@ font-family: FontAwesome!important;
     }
 
 .head_new_cl {
-    top: -21px!important;
+    top: 36px!important;
    }
 
 #custom-search-input {
