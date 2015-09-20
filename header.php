@@ -1,10 +1,11 @@
 <?php
-
-
-
+/**
+ * Classified Theme Header Page
+ *
+ * @package Osclass
+ * @subpackage Classified
+ */
 ?>
-
-
 
 <script type="text/javascript">
 
@@ -137,7 +138,7 @@ if(nc_osc_custom_css_enabled()){
 
                                 <span class="input-group-btn">        
 
-                                <button class="btn btn-danger" type="button">
+                                <button class="btn btn-danger" type="submit">
 
                                     <i class="glyphicon glyphicon-search"></i>
 
