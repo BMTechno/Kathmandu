@@ -33,6 +33,7 @@ a:hover {
 }
 .logo {
   margin-left:16px;
+  margin-top:10px;
 }
 .user_menu li a:active {
   color: #6ec6c7!important;
