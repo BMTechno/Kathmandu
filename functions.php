@@ -17,12 +17,14 @@
     require_once('dao-class/facebookuser.class.php');
     require_once('dao-class/paid-ads.class.php');
     require_once('dao-class/subscriber.class.php');
+    require_once('dao-class/unique-counter.class.php');
+
     
     /**
     *   Load Function Pages
     */
     require_once('facebook-function.php');
-
+    require_once('shortcodes.php');
     /**
     *   UPLOAD and REMOVE Site's LOGO
     */
@@ -212,6 +214,14 @@ function load_my_script(){
 
 osc_add_hook('init','load_my_script');
 
+/*
+*   Change Permission of Theme and Plugin Folders
+*/
+function change_folder_permission(){
+    chmod(osc_themes_path(), 0755);
+    chmod(osc_plugins_path(), 0755);
+}
+osc_add_hook('init','change_folder_permission');
 /**
 *
 * Script and CSS for admin pages
@@ -432,7 +442,9 @@ function nc_osc_custom_javascript_enabled(){
 function nc_osc_get_custom_javascript(){
     return osc_get_preference('custom_javascript_text','classified');
 }
-
+function nc_osc_get_facebook_login(){
+    return osc_get_preference('e_facebook_enable_status','classified');
+}
 
 /**
 * INSTALLING DATABASES
@@ -455,6 +467,9 @@ if(!ProfilePicture::newInstance()->checkTable()){
     Subscriber::newInstance()->import('sql/ppicture.sql');
 }
 
+if(!UniqueCounter::newInstance()->checkTable()){
+    UniqueCounter::newInstance()->import('sql/unique-counter.sql');
+}
 /**
 *   Function to run while installing theme
 */
@@ -788,5 +803,144 @@ function insert_longitude_latitude($aItemRef) {
     osc_add_hook('edited_item', 'insert_longitude_latitude');
 
     osc_add_hook('init','make_userlogin');
+
+function get_menu_options(){
+    $options = array();
+    $options[] = array('name' => __('Public Profile'), 'url' => osc_user_public_profile_url(osc_logged_user_id()), 'class' => 'opt_publicprofile');
+    $options[] = array('name' => __('Dashboard'), 'url' => osc_user_dashboard_url(), 'class' => 'opt_dashboard');
+    $options[] = array('name' => __('Manage your listings'), 'url' => osc_user_list_items_url(), 'class' => 'opt_items');
+    $options[] = array('name' => __('Manage your alerts'), 'url' => osc_user_alerts_url(), 'class' => 'opt_alerts');
+    $options[] = array('name' => __('My profile'), 'url' => osc_user_profile_url(), 'class' => 'opt_account');
+    $options[] = array('name' => __('Logout'), 'url' => osc_user_logout_url(), 'class' => 'opt_logout');
+    return $options;
+}
+
+/*
+*   FOR VIEW COUNTER
+*/
+function record_item_views($item){
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $item_id=$item['fk_i_item_id'];
+    $check=UniqueCounter::newInstance()->checkSameUserViewing($item_id,$ip);
+    if($check){
+        $result=UniqueCounter::newInstance()->UpdateViewCounter($item_id,$ip);
+    }else{
+        $result=UniqueCounter::newInstance()->AddViewCounter($item_id,$ip);
+    }
+}
+osc_add_hook('show_item','record_item_views');
+
+function getItemsUniqueView($item_id){
+    return UniqueCounter::newInstance()->getItemUniqueView($item_id);
+}
+function getItemsView24Hours($item_id){
+    return UniqueCounter::newInstance()->getItemView24Hours($item_id);   
+}
+
+/**
+ * Render the specified file
+ *
+ * @param string $file must be a relative path, from PLUGINS_PATH
+ */
+
+    function nc_osc_static_page_text($file = '') {
+        $locale = osc_current_user_locale();
+        $content = osc_static_page_field("s_text", $locale);
+        return do_shortcode($content);
+        //return $content;
+    }
+if ( ! function_exists( 'nc_osc_fix_shortcodes' ) ){
+    function nc_osc_fix_shortcodes( $content ){
+        $replace_tags_from_to = array (
+            '<p>[' => '[',
+            ']</p>' => ']',
+            ']<br />' => ']',
+            "<br />\n[" => '[',
+        );
+        return strtr( $content, $replace_tags_from_to );
+    }
+}
+function nc_osc_pricing_tables($atts,$content=null) {
+    extract( shortcode_atts( array(
+        'table_title' => 'Pricing Table',
+        'table_description' => 'The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested'
+    ), $atts ) );
+    global $nc_osc_pricing_tables_num;
+    $nc_osc_pricing_tables_num = 0;
+    $output = sprintf ('
+                        <div class="container">
+                            <section id="pricing_table">
+                                <div class="row">
+                                    <div class="col-lg-12 text-center">
+                                        <h3 class="section-heading">'.$table_title.'</h3> 
+                                        <h3 class="section-subheading text-muted">'.$table_description.'</h3>
+                                    </div>
+                                </div>
+                            </section>    
+
+                            <div class="row text-center">
+                                '. do_shortcode(nc_osc_fix_shortcodes($content)).'
+                            </div>
+                        </div>    
+                            ');
+    return $output;
+}
+add_shortcode('nc_osc_pricing_tables', 'nc_osc_pricing_tables');
+
+function nc_osc_pricing_table($atts) {
+    global $nc_osc_pricing_tables_num;
+    extract( shortcode_atts( array(
+        'pricing_title' => 'Pricing Title',
+        'price' => '$0',
+        'per_duration' => 'Per Year',
+        'fa_icon_1' => 'fa-users',
+        'feature_1' => '20 members',
+        'fa_icon_2' => 'fa-users',
+        'feature_2' => '20 members',
+        'fa_icon_3' => 'fa-users',
+        'feature_3' => '20 members',
+        'fa_icon_4' => 'fa-users',
+        'feature_4' => '20 members',
+        'button_link' => 'http://www.nepcoders.com',
+        'button_text' => 'Buy this one' 
+    ), $atts ) );
+
+    $nc_osc_pricing_tables_num ++ ;
+    $output = sprintf ('
+                <div class="col-md-3 col-sm-6">
+                   <div class="pricing-table">
+                       <div class="pricing-title">
+                           <h4>'.$pricing_title.'</h4>
+                       </div>
+                       <div class="caret"></div>
+                       <div class="price">
+                           <h1>'.$price.'</h1>
+                           <h6>'.$per_duration.'</h6>
+                       </div>
+                       <ul class="list-unstyled price-list">
+                           <li><i class="fa '.$fa_icon_1.'"></i><span style="margin-left:20px;">'.$feature_1.'</span></li>
+                           <li><i class="fa '.$fa_icon_2.'"></i><span style="margin-left:20px;">'.$feature_2.'</span></li>
+                           <li><i class="fa '.$fa_icon_3.'"></i><span style="margin-left:20px;">'.$feature_3.'</span></li>
+                           <li><i class="fa '.$fa_icon_4.'"></i><span style="margin-left:20px;">'.$feature_4.'</span></li>
+                       </ul>
+                       <a href="'.$button_link.'" class="btn price-btn">'.$button_text.'</a>
+                   </div>
+                </div>
+                            ');
+    
+    return $output;
+}
+add_shortcode('nc_osc_pricing_table', 'nc_osc_pricing_table');
+
+function nc_osc_buttons($atts) {
+    extract( shortcode_atts( array(
+        'button_text' => 'Button',
+        'button_type' => 'btn-primary',
+        'button_link' => '#'
+    ), $atts ) );
+    $output = sprintf ("<a href='".$button_link."'><div class='btn ".$button_type."'>".$button_text."</div></a>");
+    return $output;
+}
+add_shortcode('nc_osc_buttons', 'nc_osc_buttons');
 
 ?>
